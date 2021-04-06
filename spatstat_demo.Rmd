@@ -1,0 +1,64 @@
+---
+title: "spatstat: Demo"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+set.seed(04062021)
+library(spatstat)
+```
+
+This demo will explore point process features in the `spatstat` package.
+
+For additional `spatstat` details run the following code `vignette('getstart')` in your R console.
+
+#### 1. Generate Point Process Data
+
+Note this will require both a $n$ and $\boldsymbol{s}$
+
+```{r}
+lambda <- 100
+n <- rpois(1, lambda)
+
+x <- rbeta(n, 5, 5)
+y <- rbeta(n, 5, 5)
+
+hucks <- sample(c('few','some','many'), n, replace = T)
+sim_pp <- ppp(x, y, window = owin(xrange = c(0,1), yrange = c(0,1)), marks = hucks)
+plot(sim_pp, main = 'simulated huckleberry map')
+```
+
+There are also a collection of methods in spatstat to simulation random point process, see `rpoispp` or many others.
+
+Note `spatstat.data` has a large collection of point process datasets.
+
+#### 2. Summarize Point Process
+
+```{r}
+summary(sim_pp)
+```
+
+
+#### 3. Assess Spatial Structure
+
+Remember, the $F$ function corresponds to empty space and $G$ corresponds to nearest neighbor space.
+
+```{r}
+plot(envelope(sim_pp,Fest))
+plot(envelope(sim_pp,Gest))
+```
+
+The envelope procedure compares the observed results with a set of simulated homogeneous point processes.
+
+#### 4. Modeling Intensity
+
+```{r}
+plot(density(sim_pp))
+
+ppm(unmark(sim_pp) , ~1, Poisson())
+
+ppm(unmark(sim_pp) , ~x  + y, Poisson())
+  
+```
+
